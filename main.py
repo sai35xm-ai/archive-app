@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import List, Optional
 import datetime
@@ -25,6 +26,16 @@ notes_db = []
 category_counter = 1
 note_counter = 1
 
+# --- هذا هو الكود الجديد لعرض واجهة الموقع ---
+@app.get("/", response_class=HTMLResponse)
+def serve_frontend():
+    try:
+        with open("index.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        return "<h1>ملف الواجهة غير موجود. تأكد من أن اسمه index.html في GitHub</h1>"
+
+# --- مسارات القوالب ---
 @app.post("/api/categories")
 def add_category(name: str):
     global category_counter
@@ -37,6 +48,7 @@ def add_category(name: str):
 def get_categories():
     return categories_db
 
+# --- مسارات الملاحظات ---
 @app.post("/api/notes")
 def add_note(category_id: int, title: str, content: str, tags: str, bg_color: str = "#FFFFFF"):
     global note_counter
